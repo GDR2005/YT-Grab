@@ -1,323 +1,620 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>YTgrab</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap');
-  *{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#0a0a0a;--surface:#141414;--border:#232323;
-    --red:#ff0000;--blue:#3b82f6;--text:#f0f0f0;--muted:#666;--r:10px;
-  }
-  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem;}
-  .app{max-width:640px;margin:0 auto;}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YTgrab</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #232323;
+      --red: #ff0000;
+      --blue: #3b82f6;
+      --text: #f0f0f0;
+      --muted: #666;
+      --r: 10px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .app {
+      max-width: 640px;
+      margin: 0 auto;
+    }
 
 
-  .logo{display:flex;align-items:center;gap:10px;margin-bottom:2rem;}
-  .logo-icon{width:36px;height:36px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;}
-  .logo-text{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;}
-  .logo-text span{color:var(--red);}
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
 
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1rem;}
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--red);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
+    .logo-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+    }
 
-  .url-row{display:flex;gap:8px;}
-  .url-input{flex:1;background:#0f0f0f;border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border .2s;}
-  .url-input::placeholder{color:var(--muted);}
-  .url-input:focus{border-color:var(--red);}
-  .btn-fetch{background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:opacity .2s;}
-  .btn-fetch:hover{opacity:.85;}
-  .btn-fetch:disabled{opacity:.4;cursor:not-allowed;}
+    .logo-text span {
+      color: var(--red);
+    }
 
-  
-  .lbl{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
-
-  
-  .type-toggle{display:flex;gap:0;background:#0f0f0f;border:1px solid var(--border);border-radius:var(--r);padding:4px;margin-bottom:1.2rem;}
-  .type-btn{flex:1;padding:10px;text-align:center;font-size:14px;font-weight:500;cursor:pointer;border-radius:8px;transition:all .2s;color:var(--muted);}
-  .type-btn.active{color:#fff;}
-  .type-btn.v.active{background:var(--red);}
-  .type-btn.a.active{background:var(--blue);}
-
-  
-  .quality-grid,.audio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.2rem;}
-  .q-btn,.a-btn{background:#0f0f0f;border:1px solid var(--border);border-radius:var(--r);padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s;}
-  .q-btn:hover,.q-btn.active{border-color:var(--red);background:#1a0000;}
-  .q-btn.active .q-lbl{color:var(--red);}
-  .a-btn:hover,.a-btn.active{border-color:var(--blue);background:#00001a;}
-  .a-btn.active .a-lbl{color:var(--blue);}
-  .q-lbl,.a-lbl{font-size:13px;font-weight:600;}
-  .q-sub,.a-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-
-
-  .fmt-row{display:flex;gap:8px;margin-bottom:1.2rem;}
-  .fmt-btn{flex:1;background:#0f0f0f;border:1px solid var(--border);border-radius:var(--r);padding:9px;text-align:center;font-size:13px;cursor:pointer;transition:all .15s;color:var(--text);}
-  .fmt-btn.v.active{border-color:var(--red);background:#1a0000;color:var(--red);}
-  .fmt-btn.a.active{border-color:var(--blue);background:#00001a;color:var(--blue);}
-
-  .preview{display:flex;gap:12px;align-items:flex-start;margin-bottom:1rem;}
-  .thumb-wrap{width:100px;height:60px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#1a0a0a;}
-  .thumb-wrap img{width:100%;height:100%;object-fit:cover;}
-  .meta-title{font-size:14px;font-weight:500;line-height:1.4;margin-bottom:4px;}
-  .meta-row{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);}
-
-  .progress-wrap{margin:1rem 0;}
-  .progress-bar-bg{background:#1a1a1a;border-radius:20px;height:6px;overflow:hidden;margin-bottom:8px;}
-  .progress-bar-fill{height:100%;border-radius:20px;width:0%;transition:width .4s;}
-  .fill-v{background:linear-gradient(90deg,var(--red),#ff6b6b);}
-  .fill-a{background:linear-gradient(90deg,var(--blue),#60a5fa);}
-  .progress-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);}
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
 
 
-  .btn-dl{width:100%;color:#fff;border:none;border-radius:var(--r);padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s;margin-top:.5rem;}
-  .btn-dl.v{background:var(--red);}
-  .btn-dl.a{background:var(--blue);}
-  .btn-dl:hover{opacity:.88;}
-  .btn-dl:disabled{opacity:.4;cursor:not-allowed;}
+    .url-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .url-input {
+      flex: 1;
+      background: #0f0f0f;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: border .2s;
+    }
+
+    .url-input::placeholder {
+      color: var(--muted);
+    }
+
+    .url-input:focus {
+      border-color: var(--red);
+    }
+
+    .btn-fetch {
+      background: var(--red);
+      color: #fff;
+      border: none;
+      border-radius: var(--r);
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+      transition: opacity .2s;
+    }
+
+    .btn-fetch:hover {
+      opacity: .85;
+    }
+
+    .btn-fetch:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
 
 
-  .error-box{background:#1a0000;border:1px solid #330000;color:#ff6b6b;border-radius:var(--r);padding:10px 14px;font-size:13px;margin-top:.8rem;}
+    .lbl {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
 
-  .hidden{display:none;}
-</style>
+
+    .type-toggle {
+      display: flex;
+      gap: 0;
+      background: #0f0f0f;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 4px;
+      margin-bottom: 1.2rem;
+    }
+
+    .type-btn {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all .2s;
+      color: var(--muted);
+    }
+
+    .type-btn.active {
+      color: #fff;
+    }
+
+    .type-btn.v.active {
+      background: var(--red);
+    }
+
+    .type-btn.a.active {
+      background: var(--blue);
+    }
+
+
+    .quality-grid,
+    .audio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 1.2rem;
+    }
+
+    .q-btn,
+    .a-btn {
+      background: #0f0f0f;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 10px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .q-btn:hover,
+    .q-btn.active {
+      border-color: var(--red);
+      background: #1a0000;
+    }
+
+    .q-btn.active .q-lbl {
+      color: var(--red);
+    }
+
+    .a-btn:hover,
+    .a-btn.active {
+      border-color: var(--blue);
+      background: #00001a;
+    }
+
+    .a-btn.active .a-lbl {
+      color: var(--blue);
+    }
+
+    .q-lbl,
+    .a-lbl {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .q-sub,
+    .a-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+
+    .fmt-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1.2rem;
+    }
+
+    .fmt-btn {
+      flex: 1;
+      background: #0f0f0f;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 9px;
+      text-align: center;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .15s;
+      color: var(--text);
+    }
+
+    .fmt-btn.v.active {
+      border-color: var(--red);
+      background: #1a0000;
+      color: var(--red);
+    }
+
+    .fmt-btn.a.active {
+      border-color: var(--blue);
+      background: #00001a;
+      color: var(--blue);
+    }
+
+    .preview {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .thumb-wrap {
+      width: 100px;
+      height: 60px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: #1a0a0a;
+    }
+
+    .thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .meta-title {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .progress-wrap {
+      margin: 1rem 0;
+    }
+
+    .progress-bar-bg {
+      background: #1a1a1a;
+      border-radius: 20px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 20px;
+      width: 0%;
+      transition: width .4s;
+    }
+
+    .fill-v {
+      background: linear-gradient(90deg, var(--red), #ff6b6b);
+    }
+
+    .fill-a {
+      background: linear-gradient(90deg, var(--blue), #60a5fa);
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+
+    .btn-dl {
+      width: 100%;
+      color: #fff;
+      border: none;
+      border-radius: var(--r);
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity .2s;
+      margin-top: .5rem;
+    }
+
+    .btn-dl.v {
+      background: var(--red);
+    }
+
+    .btn-dl.a {
+      background: var(--blue);
+    }
+
+    .btn-dl:hover {
+      opacity: .88;
+    }
+
+    .btn-dl:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+
+    .error-box {
+      background: #1a0000;
+      border: 1px solid #330000;
+      color: #ff6b6b;
+      border-radius: var(--r);
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-top: .8rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
+
 <body>
-<div class="app">
+  <div class="app">
 
 
-  <div class="logo">
-    <div class="logo-icon">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-        <path d="M10 15l5.19-3L10 9v6zm11.56-7.83C21.27 6.19 20.57 5.44 19.6 5.17 17.9 5 12 5 12 5s-5.9 0-7.62.17c-.97.25-1.67 1-1.94 2C2.26 9.04 2.26 12 2.26 12s0 2.96.18 4.83c.27 1 .97 1.75 1.94 2C6.1 19 12 19 12 19s5.9 0 7.62-.17c.97-.25 1.67-1 1.94-2 .18-1.87.18-4.83.18-4.83s0-2.96-.18-4.83z"/>
-      </svg>
-    </div>
-    <div class="logo-text">YT<span>grab</span></div>
-  </div>
-
-
-  <div class="card">
-    <div class="url-row">
-      <input class="url-input" id="urlInput" type="text" placeholder="Paste YouTube URL..."/>
-      <button class="btn-fetch" id="fetchBtn" onclick="fetchInfo()">Analyze</button>
-    </div>
-    <div class="error-box hidden" id="errorBox"></div>
-  </div>
-
-
-  <div class="card hidden" id="mainCard">
-
-  
-    <div class="lbl">Type</div>
-    <div class="type-toggle">
-      <div class="type-btn v active" id="tVideo" onclick="setMode('video')">🎬 Video</div>
-      <div class="type-btn a"        id="tAudio" onclick="setMode('audio')">🎵 Audio Only</div>
-    </div>
-
-  
-    <div id="videoOpts">
-      <div class="lbl">Quality</div>
-      <div class="quality-grid" id="videoQualities">
-        <div style="color:var(--muted);font-size:13px;">Analyzing...</div>
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+          <path
+            d="M10 15l5.19-3L10 9v6zm11.56-7.83C21.27 6.19 20.57 5.44 19.6 5.17 17.9 5 12 5 12 5s-5.9 0-7.62.17c-.97.25-1.67 1-1.94 2C2.26 9.04 2.26 12 2.26 12s0 2.96.18 4.83c.27 1 .97 1.75 1.94 2C6.1 19 12 19 12 19s5.9 0 7.62-.17c.97-.25 1.67-1 1.94-2 .18-1.87.18-4.83.18-4.83s0-2.96-.18-4.83z" />
+        </svg>
       </div>
-      <div class="lbl">Format</div>
-      <div class="fmt-row">
-        <div class="fmt-btn v active" onclick="selVFmt(this,'mp4')">MP4</div>
-        <div class="fmt-btn v"        onclick="selVFmt(this,'webm')">WEBM</div>
-        <div class="fmt-btn v"        onclick="selVFmt(this,'mkv')">MKV</div>
-      </div>
+      <div class="logo-text">YT<span>grab</span></div>
     </div>
 
-  
-    <div id="audioOpts" class="hidden">
-      <div class="lbl">Bitrate</div>
-      <div class="audio-grid" id="audioBitrates">
-        <div style="color:var(--muted);font-size:13px;">Analyzing...</div>
+
+    <div class="card">
+      <div class="url-row">
+        <input class="url-input" id="urlInput" type="text" placeholder="Paste YouTube URL..." />
+        <button class="btn-fetch" id="fetchBtn" onclick="fetchInfo()">Analyze</button>
       </div>
-      <div class="lbl">Format</div>
-      <div class="fmt-row">
-        <div class="fmt-btn a active" onclick="selAFmt(this,'mp3')">MP3</div>
-        <div class="fmt-btn a"        onclick="selAFmt(this,'m4a')">M4A</div>
-        <div class="fmt-btn a"        onclick="selAFmt(this,'ogg')">OGG</div>
-        <div class="fmt-btn a"        onclick="selAFmt(this,'wav')">WAV</div>
-      </div>
+      <div class="error-box hidden" id="errorBox"></div>
     </div>
 
-  
-    <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:.5rem;margin-bottom:1rem;">
-      <div class="lbl">Video Info</div>
-      <div class="preview">
-        <div class="thumb-wrap"><img id="thumb" src="" alt="thumbnail"/></div>
-        <div>
-          <div class="meta-title" id="metaTitle">–</div>
-          <div class="meta-row">
-            <span id="metaDur">–</span>
-            <span id="metaChannel">–</span>
-            <span id="metaViews">–</span>
+
+    <div class="card hidden" id="mainCard">
+
+
+      <div class="lbl">Type</div>
+      <div class="type-toggle">
+        <div class="type-btn v active" id="tVideo" onclick="setMode('video')">🎬 Video</div>
+        <div class="type-btn a" id="tAudio" onclick="setMode('audio')">🎵 Audio Only</div>
+      </div>
+
+
+      <div id="videoOpts">
+        <div class="lbl">Quality</div>
+        <div class="quality-grid" id="videoQualities">
+          <div style="color:var(--muted);font-size:13px;">Analyzing...</div>
+        </div>
+        <div class="lbl">Format</div>
+        <div class="fmt-row">
+          <div class="fmt-btn v active" onclick="selVFmt(this,'mp4')">MP4</div>
+          <div class="fmt-btn v" onclick="selVFmt(this,'webm')">WEBM</div>
+          <div class="fmt-btn v" onclick="selVFmt(this,'mkv')">MKV</div>
+        </div>
+      </div>
+
+
+      <div id="audioOpts" class="hidden">
+        <div class="lbl">Bitrate</div>
+        <div class="audio-grid" id="audioBitrates">
+          <div style="color:var(--muted);font-size:13px;">Analyzing...</div>
+        </div>
+        <div class="lbl">Format</div>
+        <div class="fmt-row">
+          <div class="fmt-btn a active" onclick="selAFmt(this,'mp3')">MP3</div>
+          <div class="fmt-btn a" onclick="selAFmt(this,'m4a')">M4A</div>
+          <div class="fmt-btn a" onclick="selAFmt(this,'ogg')">OGG</div>
+          <div class="fmt-btn a" onclick="selAFmt(this,'wav')">WAV</div>
+        </div>
+      </div>
+
+
+      <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:.5rem;margin-bottom:1rem;">
+        <div class="lbl">Video Info</div>
+        <div class="preview">
+          <div class="thumb-wrap"><img id="thumb" src="" alt="thumbnail" /></div>
+          <div>
+            <div class="meta-title" id="metaTitle">–</div>
+            <div class="meta-row">
+              <span id="metaDur">–</span>
+              <span id="metaChannel">–</span>
+              <span id="metaViews">–</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-  
-    <div class="progress-wrap hidden" id="progWrap">
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill fill-v" id="progFill"></div>
+
+      <div class="progress-wrap hidden" id="progWrap">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill fill-v" id="progFill"></div>
+        </div>
+        <div class="progress-meta">
+          <span id="progLabel">Preparing...</span>
+          <span id="progPct">0%</span>
+        </div>
       </div>
-      <div class="progress-meta">
-        <span id="progLabel">Preparing...</span>
-        <span id="progPct">0%</span>
-      </div>
+
+
+      <button class="btn-dl v" id="dlBtn" onclick="startDownload()">
+        ⬇ Download Video
+      </button>
+
     </div>
-
-    
-    <button class="btn-dl v" id="dlBtn" onclick="startDownload()">
-      ⬇ Download Video
-    </button>
-
   </div>
-</div>
 
-<script>
-  const API = 'http://localhost:3000/api';
-  let mode = 'video';
-  let curVItag = 'highest';
-  let curAItag = 'highestaudio';
-  let curVFmt = 'mp4';
-  let curAFmt = 'mp3';
+  <script>
+    const API = 'http://localhost:3000/api';
+    let mode = 'video';
+    let curVItag = 'highest';
+    let curAItag = 'highestaudio';
+    let curVFmt = 'mp4';
+    let curAFmt = 'mp3';
 
-  async function fetchInfo() {
-    const url = document.getElementById('urlInput').value.trim();
-    if (!url) return showError('Please paste a YouTube URL.');
-    hideError();
+    async function fetchInfo() {
+      const url = document.getElementById('urlInput').value.trim();
+      if (!url) return showError('Please paste a YouTube URL.');
+      hideError();
 
-    const btn = document.getElementById('fetchBtn');
-    btn.disabled = true;
-    btn.textContent = 'Fetching...';
+      const btn = document.getElementById('fetchBtn');
+      btn.disabled = true;
+      btn.textContent = 'Fetching...';
 
-    try {
-      const res = await fetch(`${API}/info?url=${encodeURIComponent(url)}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      try {
+        const res = await fetch(`${API}/info?url=${encodeURIComponent(url)}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
 
-      document.getElementById('metaTitle').textContent = data.title;
-      document.getElementById('metaDur').textContent = data.duration;
-      document.getElementById('metaViews').textContent = data.views;
-      document.getElementById('metaChannel').textContent = data.channel;
-      document.getElementById('thumb').src = data.thumbnail;
+        document.getElementById('metaTitle').textContent = data.title;
+        document.getElementById('metaDur').textContent = data.duration;
+        document.getElementById('metaViews').textContent = data.views;
+        document.getElementById('metaChannel').textContent = data.channel;
+        document.getElementById('thumb').src = data.thumbnail;
 
-      renderQualities(data.videoFormats, data.audioFormats);
-      document.getElementById('mainCard').classList.remove('hidden');
-    } catch (e) {
-      showError(e.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Analyze';
+        renderQualities(data.videoFormats, data.audioFormats);
+        document.getElementById('mainCard').classList.remove('hidden');
+      } catch (e) {
+        showError(e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Analyze';
+      }
     }
-  }
 
-  function renderQualities(vf, af) {
-    const vGrid = document.getElementById('videoQualities');
-    if (vf.length) {
-      curVItag = vf[0].itag;
-      vGrid.innerHTML = vf.map((f, i) => `
+    function renderQualities(vf, af) {
+      const vGrid = document.getElementById('videoQualities');
+      if (vf.length) {
+        curVItag = vf[0].itag;
+        vGrid.innerHTML = vf.map((f, i) => `
         <div class="q-btn${i === 0 ? ' active' : ''}" onclick="selVQ(this, ${f.itag})">
           <div class="q-lbl">${f.quality}</div>
           <div class="q-sub">${f.container.toUpperCase()}</div>
         </div>`).join('');
-    } else {
-      vGrid.innerHTML = '<div style="color:var(--muted);font-size:13px;">No formats found</div>';
-    }
+      } else {
+        vGrid.innerHTML = '<div style="color:var(--muted);font-size:13px;">No formats found</div>';
+      }
 
-    const aGrid = document.getElementById('audioBitrates');
-    if (af.length) {
-      curAItag = af[0].itag;
-      aGrid.innerHTML = af.map((f, i) => `
+      const aGrid = document.getElementById('audioBitrates');
+      if (af.length) {
+        curAItag = af[0].itag;
+        aGrid.innerHTML = af.map((f, i) => `
         <div class="a-btn${i === 0 ? ' active' : ''}" onclick="selAQ(this, ${f.itag})">
           <div class="a-lbl">${f.bitrate}</div>
           <div class="a-sub">${f.container.toUpperCase()}</div>
         </div>`).join('');
-    } else {
-      aGrid.innerHTML = '<div style="color:var(--muted);font-size:13px;">No formats found</div>';
+      } else {
+        aGrid.innerHTML = '<div style="color:var(--muted);font-size:13px;">No formats found</div>';
+      }
     }
-  }
-  function setMode(m) {
-    mode = m;
-    document.getElementById('tVideo').classList.toggle('active', m === 'video');
-    document.getElementById('tAudio').classList.toggle('active', m === 'audio');
-    document.getElementById('videoOpts').classList.toggle('hidden', m !== 'video');
-    document.getElementById('audioOpts').classList.toggle('hidden', m !== 'audio');
+    function setMode(m) {
+      mode = m;
+      document.getElementById('tVideo').classList.toggle('active', m === 'video');
+      document.getElementById('tAudio').classList.toggle('active', m === 'audio');
+      document.getElementById('videoOpts').classList.toggle('hidden', m !== 'video');
+      document.getElementById('audioOpts').classList.toggle('hidden', m !== 'audio');
 
-    const btn = document.getElementById('dlBtn');
-    btn.className = 'btn-dl ' + (m === 'video' ? 'v' : 'a');
-    btn.textContent = m === 'video' ? '⬇ Download Video' : '⬇ Download Audio';
-    document.getElementById('progFill').className =
-      'progress-bar-fill ' + (m === 'video' ? 'fill-v' : 'fill-a');
-  }
+      const btn = document.getElementById('dlBtn');
+      btn.className = 'btn-dl ' + (m === 'video' ? 'v' : 'a');
+      btn.textContent = m === 'video' ? '⬇ Download Video' : '⬇ Download Audio';
+      document.getElementById('progFill').className =
+        'progress-bar-fill ' + (m === 'video' ? 'fill-v' : 'fill-a');
+    }
 
-  function selVQ(el, itag) {
-    document.querySelectorAll('.q-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    curVItag = itag;
-  }
-  function selAQ(el, itag) {
-    document.querySelectorAll('.a-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    curAItag = itag;
-  }
-  function selVFmt(el, f) {
-    document.querySelectorAll('.fmt-btn.v').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    curVFmt = f;
-  }
-  function selAFmt(el, f) {
-    document.querySelectorAll('.fmt-btn.a').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    curAFmt = f;
-  }
+    function selVQ(el, itag) {
+      document.querySelectorAll('.q-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      curVItag = itag;
+    }
+    function selAQ(el, itag) {
+      document.querySelectorAll('.a-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      curAItag = itag;
+    }
+    function selVFmt(el, f) {
+      document.querySelectorAll('.fmt-btn.v').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      curVFmt = f;
+    }
+    function selAFmt(el, f) {
+      document.querySelectorAll('.fmt-btn.a').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      curAFmt = f;
+    }
 
-  function startDownload() {
-    const url = document.getElementById('urlInput').value.trim();
-    if (!url) return;
+    function startDownload() {
+      const url = document.getElementById('urlInput').value.trim();
+      if (!url) return;
 
-    const endpoint =
-      mode === 'video'
-        ? `${API}/download/video?url=${encodeURIComponent(url)}&quality=${curVItag}`
-        : `${API}/download/audio?url=${encodeURIComponent(url)}&format=${curAFmt}`;
+      const endpoint =
+        mode === 'video'
+          ? `${API}/download/video?url=${encodeURIComponent(url)}&quality=${curVItag}`
+          : `${API}/download/audio?url=${encodeURIComponent(url)}&format=${curAFmt}`;
 
-    const progWrap = document.getElementById('progWrap');
-    const fill = document.getElementById('progFill');
-    const lbl = document.getElementById('progLabel');
-    const pct = document.getElementById('progPct');
-    progWrap.classList.remove('hidden');
+      const progWrap = document.getElementById('progWrap');
+      const fill = document.getElementById('progFill');
+      const lbl = document.getElementById('progLabel');
+      const pct = document.getElementById('progPct');
+      progWrap.classList.remove('hidden');
 
-    const sseUrl = `${API}/progress?url=${encodeURIComponent(url)}&type=${mode}&quality=${mode === 'video' ? curVItag : curAItag}`;
-    const sse = new EventSource(sseUrl);
-    sse.onmessage = e => {
-      const d = JSON.parse(e.data);
-      fill.style.width = d.progress + '%';
-      pct.textContent = d.progress + '%';
-      if (d.status === 'done')         lbl.textContent = 'Done!';
-      else if (d.status === 'error')   lbl.textContent = 'Error: ' + d.message;
-      else                             lbl.textContent = 'Downloading...';
-      if (d.status === 'done' || d.status === 'error') sse.close();
-    };
-    window.location.href = endpoint;
-  }
+      const sseUrl = `${API}/progress?url=${encodeURIComponent(url)}&type=${mode}&quality=${mode === 'video' ? curVItag : curAItag}`;
+      const sse = new EventSource(sseUrl);
+      sse.onmessage = e => {
+        const d = JSON.parse(e.data);
+        fill.style.width = d.progress + '%';
+        pct.textContent = d.progress + '%';
+        if (d.status === 'done') lbl.textContent = 'Done!';
+        else if (d.status === 'error') lbl.textContent = 'Error: ' + d.message;
+        else lbl.textContent = 'Downloading...';
+        if (d.status === 'done' || d.status === 'error') sse.close();
+      };
+      window.location.href = endpoint;
+    }
 
-  function showError(msg) {
-    const el = document.getElementById('errorBox');
-    el.textContent = msg;
-    el.classList.remove('hidden');
-  }
-  function hideError() {
-    document.getElementById('errorBox').classList.add('hidden');
-  }
+    function showError(msg) {
+      const el = document.getElementById('errorBox');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+    function hideError() {
+      document.getElementById('errorBox').classList.add('hidden');
+    }
 
-  document.getElementById('urlInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') fetchInfo();
-  });
-</script>
+    document.getElementById('urlInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') fetchInfo();
+    });
+  </script>
 </body>
+
 </html>
